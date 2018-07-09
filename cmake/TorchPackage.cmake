@@ -1,19 +1,11 @@
 # -*- cmake -*-
 
 MACRO(ADD_TORCH_LIBRARY package type src)
-  IF ("${type}" STREQUAL "STATIC")
-    if ("${src}" MATCHES "cu$" OR "${src}" MATCHES "cu;")
-      CUDA_ADD_LIBRARY(${package} STATIC ${src})
-    else()
-      ADD_LIBRARY(${package} STATIC ${src})
-    endif()
-  ELSE()
-    if ("${src}" MATCHES "cu$" OR "${src}" MATCHES "cu;")
-      CUDA_ADD_LIBRARY(${package} ${type} ${src})
-    else()
-      ADD_LIBRARY(${package} ${type} ${src})
-    endif()
-  ENDIF()
+  if ("${src}" MATCHES "cu$" OR "${src}" MATCHES "cu;")
+    CUDA_ADD_LIBRARY(${package} ${type} ${src})
+  else()
+    ADD_LIBRARY(${package} ${type} ${src})
+  endif()
 ENDMACRO()
 
 MACRO(ADD_TORCH_PACKAGE package src luasrc)
@@ -30,11 +22,11 @@ MACRO(ADD_TORCH_PACKAGE package src luasrc)
     SET_TARGET_PROPERTIES(${package} PROPERTIES
       PREFIX "lib"
       IMPORT_PREFIX "lib"
-      INSTALL_NAME_DIR "@executable_path/${Torch_INSTALL_BIN2CPATH}")
 
     IF(APPLE)
       SET_TARGET_PROPERTIES(${package} PROPERTIES
         LINK_FLAGS "-undefined dynamic_lookup")
+		INSTALL_NAME_DIR "@executable_path/${Torch_INSTALL_BIN2CPATH}")
     ENDIF()
 
     IF (BUILD_STATIC OR "$ENV{STATIC_TH}" STREQUAL "YES")
